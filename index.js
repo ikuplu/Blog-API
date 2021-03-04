@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Read blogs
+// Read all blogs
 app.get('/', (req, res) => {
   res.json(blogs);
 });
@@ -27,6 +27,18 @@ app.post('/blogs', (req, res) => {
     // res.json({ msg: 'Blog created!', Blogs: blogs });
     fs.writeFileSync(title, content);
     res.end('ok');
+  }
+});
+
+// Update blogs
+app.put('/blogs/:title', (req, res) => {
+  if (fs.existsSync(req.params.title)) {
+    const title = req.params.title;
+    const content = req.body.content;
+    fs.writeFileSync(title, content);
+    res.end('ok');
+  } else {
+    res.status(404).send('This post does not exist!');
   }
 });
 
