@@ -17,31 +17,40 @@ app.get('/', (req, res) => {
 // Create blogs
 app.post('/blogs', (req, res) => {
   const newBlog = req.body;
+  const title = newBlog.title;
+  const content = newBlog.content;
   if (!isValid(newBlog)) {
     res.status(400).end('Invalid request!');
   } else {
-    newBlog.id = uuidv4();
-    const title = newBlog.title;
-    const content = newBlog.content;
-    // blogs.push(newBlog);
-    // res.json({ msg: 'Blog created!', Blogs: blogs });
     fs.writeFileSync(title, content);
     res.end('ok');
   }
 });
 
-// Update blogs
+// Update a blog
 app.put('/blogs/:title', (req, res) => {
-  if (fs.existsSync(req.params.title)) {
-    const title = req.params.title;
-    const content = req.body.content;
+  const title = req.params.title;
+  const content = req.body.content;
+  if (fs.existsSync(title)) {
     fs.writeFileSync(title, content);
     res.end('ok');
   } else {
-    res.status(404).send('This post does not exist!');
+    res.status(404).send('This blog does not exist!');
   }
 });
 
+// Delete a blog
+app.delete('/blogs/:title', (req, res) => {
+  const title = req.params.title;
+  if (fs.existsSync(title)) {
+    fs.unlinkSync(title);
+    res.end('ok');
+  } else {
+    res.status(404).send('This blog does not exist!');
+  }
+});
+
+// To check if the request body is proper
 function isValid(blog) {
   if (typeof blog !== 'object') return false;
   if (typeof blog.title == 'undefined') return false;
