@@ -14,6 +14,16 @@ app.get('/', (req, res) => {
   res.json(blogs);
 });
 
+// Read a blog
+app.get('/blogs/:title', (req, res) => {
+  const title = req.params.title;
+  if (fs.existsSync(title)) {
+    res.send(fs.readFileSync(title));
+  } else {
+    res.status(404).send('This blog does not exist!');
+  }
+});
+
 // Create blogs
 app.post('/blogs', (req, res) => {
   const newBlog = req.body;
@@ -50,7 +60,7 @@ app.delete('/blogs/:title', (req, res) => {
   }
 });
 
-// To check if the request body is proper
+// Check if the request body is proper for a post request
 function isValid(blog) {
   if (typeof blog !== 'object') return false;
   if (typeof blog.title == 'undefined') return false;
