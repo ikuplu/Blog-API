@@ -1,7 +1,5 @@
 const express = require('express');
 const fs = require('fs');
-const blogs = require('./blogs');
-const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 
@@ -10,12 +8,16 @@ app.use(express.json());
 
 // Read all blogs
 app.get('/', (req, res) => {
-  const blogList = [];
-  fs.readdirSync('./Blogs').forEach((blog) => {
-    blogObj = { title: blog };
-    blogList.push(blogObj);
+  const blogList = fs.readdirSync('./Blogs');
+  blogList.forEach((blog, index) => {
+    blogList[index] = { title: blog };
   });
-  res.send(blogList);
+
+  if (blogList.length !== 0) {
+    res.send(blogList);
+  } else {
+    res.status(404).send(`There aren't any blogs!`);
+  }
 });
 
 // Read a blog
@@ -28,7 +30,7 @@ app.get('/blogs/:title', (req, res) => {
   }
 });
 
-// Create blogs
+// Create a blog
 app.post('/blogs', (req, res) => {
   const title = `./Blogs/${req.body.title}`;
   const content = req.body.content;
@@ -36,7 +38,6 @@ app.post('/blogs', (req, res) => {
     res.status(400).end('Invalid request!');
   } else {
     fs.writeFileSync(title, content);
-    // blogs.push(newBlog);
     res.end('ok');
   }
 });
@@ -67,8 +68,8 @@ app.delete('/blogs/:title', (req, res) => {
 // Check if the request body is proper for a post request
 function isValid(blog) {
   if (typeof blog !== 'object') return false;
-  if (typeof blog.title == 'undefined') return false;
-  if (typeof blog.content == 'undefined') return false;
+  if (typeof blog.title === 'undefined') return false;
+  if (typeof blog.content === 'undefined') return false;
   return true;
 }
 
