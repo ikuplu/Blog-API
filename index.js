@@ -7,16 +7,20 @@ const app = express();
 
 // Body Parser Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
 // Read all blogs
 app.get('/', (req, res) => {
-  res.json(blogs);
+  const blogList = [];
+  fs.readdirSync('./Blogs').forEach((blog) => {
+    blogObj = { title: blog };
+    blogList.push(blogObj);
+  });
+  res.send(blogList);
 });
 
 // Read a blog
 app.get('/blogs/:title', (req, res) => {
-  const title = req.params.title;
+  const title = `./Blogs/${req.params.title}`;
   if (fs.existsSync(title)) {
     res.send(fs.readFileSync(title));
   } else {
@@ -26,20 +30,20 @@ app.get('/blogs/:title', (req, res) => {
 
 // Create blogs
 app.post('/blogs', (req, res) => {
-  const newBlog = req.body;
-  const title = newBlog.title;
-  const content = newBlog.content;
-  if (!isValid(newBlog)) {
+  const title = `./Blogs/${req.body.title}`;
+  const content = req.body.content;
+  if (!isValid(req.body)) {
     res.status(400).end('Invalid request!');
   } else {
     fs.writeFileSync(title, content);
+    // blogs.push(newBlog);
     res.end('ok');
   }
 });
 
 // Update a blog
 app.put('/blogs/:title', (req, res) => {
-  const title = req.params.title;
+  const title = `./Blogs/${req.params.title}`;
   const content = req.body.content;
   if (fs.existsSync(title)) {
     fs.writeFileSync(title, content);
@@ -51,7 +55,7 @@ app.put('/blogs/:title', (req, res) => {
 
 // Delete a blog
 app.delete('/blogs/:title', (req, res) => {
-  const title = req.params.title;
+  const title = `./Blogs/${req.params.title}`;
   if (fs.existsSync(title)) {
     fs.unlinkSync(title);
     res.end('ok');
