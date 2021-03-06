@@ -36,6 +36,8 @@ app.post('/blogs', (req, res) => {
   const content = req.body.content;
   if (!isValid(req.body)) {
     res.status(400).end('Invalid request!');
+  } else if (fs.existsSync(title)) {
+    res.status(400).end('This blog already exists!');
   } else {
     fs.writeFileSync(title, content);
     res.end('ok');
